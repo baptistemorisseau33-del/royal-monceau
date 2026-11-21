@@ -25,6 +25,26 @@ f();addEventListener('resize',f);addEventListener('orientationchange',function()
 var avail=H-48-150,h=e.offsetHeight,k=h?Math.min(1,avail/h):1;var t=k<1?'scale('+k.toFixed(3)+')':'';if(e.style.transform!==t)e.style.transform=t;}
 setInterval(fit,300);addEventListener('resize',fit);})();
 </script>
+<style>
+.rm-sheet{transition:transform .32s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.rm-sheet.drag{transition:none}
+.rm-grab{touch-action:none;cursor:grab}
+.rm-handle{box-sizing:content-box;padding:10px 60px;margin:-10px 0;background-clip:content-box!important}
+</style>
+<script>
+(function(){var PEEK=62,d=null;
+function sc(){return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s'))||1}
+function max(el){return el.offsetHeight-PEEK}
+function set(el,y){el.style.transform=y?'translateY('+y+'px)':'';el.dataset.y=y}
+document.addEventListener('pointerdown',function(e){var g=e.target.closest&&e.target.closest('.rm-grab');if(!g)return;var el=g.closest('.rm-sheet');if(!el)return;
+d={el:el,y0:e.clientY,b:+(el.dataset.y||0),moved:false,id:e.pointerId};el.classList.add('drag');try{g.setPointerCapture(e.pointerId)}catch(_){}},true);
+document.addEventListener('pointermove',function(e){if(!d||e.pointerId!==d.id)return;var dy=(e.clientY-d.y0)/sc();if(Math.abs(dy)>4)d.moved=true;
+var y=Math.max(0,Math.min(max(d.el),d.b+dy));set(d.el,y);},true);
+function end(e){if(!d||e.pointerId!==d.id)return;var el=d.el,y=+(el.dataset.y||0),m=max(el);el.classList.remove('drag');
+if(!d.moved){set(el,d.b>0?0:m)}else{var down=y>d.b;set(el,(down?y>m*0.25:y>m*0.75)?m:0)}d=null;}
+document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
+})();
+</script>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="./maplibre-gl.css">
 <script src="./maplibre-gl.js"></script>
@@ -153,19 +173,15 @@ button{font-family:inherit;cursor:pointer}
 </div>
 </div>
 <button type="button" onClick="{{replayIntro}}" aria-label="{{t.replay}}" style="position: absolute; right: 24px; top: 100px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(244,239,230,0.35); background: rgba(20,18,16,0.5); color: #F4EFE6; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>{{t.replay}}</button>
-<div class="rm-homebox" style="position: absolute; left: 24px; right: 24px; bottom: 48px; display: flex; flex-direction: column; gap: 18px; transform-origin: center bottom">
-<span style="animation: {{fx.txt}}; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #C9A66B; font-weight: 600">{{t.kicker}}</span>
-<h1 style="animation: {{fx.txt}}; margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 400; font-size: 44px; line-height: 1.04; letter-spacing: -0.5px; white-space: pre-line">{{t.homeTitle}}</h1>
-<p style="animation: {{fx.txt}}; margin: 0; font-size: 15px; line-height: 1.5; color: #D8D0C3; max-width: 320px">{{t.homeSub}}</p>
-<div style="animation: {{fx.txt}}; background: rgba(20,18,16,0.6); border: 1px solid rgba(201,166,107,0.45); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px">
-<span style="font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #C9A66B; font-weight: 700">{{t.exKicker}}</span>
-<span style="font-family: 'Bodoni Moda', serif; font-size: 19px; line-height: 1.2; color: #F4EFE6">{{t.exTitle}}</span>
-<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #E4DCCF">{{t.exText}}</p>
+<div class="rm-homebox" style="position: absolute; left: 32px; right: 32px; bottom: 56px; display: flex; flex-direction: column; transform-origin: left bottom">
+<span style="animation: {{fx.txt}}; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #C9A66B; font-weight: 600">{{t.kicker}}</span>
+<h1 style="animation: {{fx.txt}}; margin: 18px 0 0; font-family: 'Bodoni Moda', serif; font-weight: 400; font-size: 42px; line-height: 1.06; letter-spacing: -0.4px; white-space: pre-line; color: #F4EFE6">{{t.homeTitle}}</h1>
+<span style="animation: {{fx.txt}}; width: 36px; height: 1px; background: #C9A66B; margin: 26px 0 0"></span>
+<p style="animation: {{fx.txt}}; margin: 20px 0 0; font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 17px; line-height: 1.5; color: #E4DCCF; max-width: 300px">{{t.exLine}}</p>
 <sc-if value="{{hasAudio}}" hint-placeholder-val="{{ true }}">
-<button type="button" onClick="{{exListen}}" style="align-self: flex-start; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #C9A66B; background: transparent; color: #F4EFE6; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; margin-top: 2px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 010 7"></path></svg>{{exLabel}}</button>
+<button type="button" onClick="{{exListen}}" style="animation: {{fx.txt}}; align-self: flex-start; height: 40px; margin: 10px 0 0 -2px; padding: 0 4px; border: none; background: transparent; color: #C9A66B; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 010 7"></path></svg>{{exLabel}}</button>
 </sc-if>
-</div>
-<button type="button" onClick="{{goMode}}" style="align-self: flex-start; height: 56px; padding: 0 22px 0 26px; border: none; border-radius: 999px; background: #F4EFE6; color: #141210; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 12px; margin-top: 6px">
+<button type="button" onClick="{{goMode}}" style="animation: {{fx.txt}}; align-self: flex-start; height: 56px; padding: 0 22px 0 26px; margin-top: 28px; border: none; border-radius: 999px; background: #F4EFE6; color: #141210; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 12px">
 {{t.start}}
 <span style="width: 32px; height: 32px; border-radius: 999px; background: #141210; display: flex; align-items: center; justify-content: center">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A66B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
@@ -298,9 +314,9 @@ button{font-family:inherit;cursor:pointer}
 <span style="position: absolute; left: 12px; top: 484px; font-size: 10px; color: #5C564E; background: rgba(251,248,242,0.85); padding: 2px 6px; border-radius: 6px"><a href="https://openfreemap.org" target="_blank" rel="noopener" style="color: #5C564E; text-decoration: none">OpenFreeMap</a> · <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener" style="color: #5C564E; text-decoration: none">© OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color: #5C564E; text-decoration: none">© OpenStreetMap</a></span>
 
 <sc-if value="{{notNav}}" hint-placeholder-val="{{ true }}">
-<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: #FBF8F2; border-radius: 26px 26px 0 0; box-shadow: 0 -4px 20px rgba(20,18,16,0.14); display: flex; flex-direction: column; gap: 12px; padding: 10px 0 24px; box-sizing: border-box">
-<div style="width: 40px; height: 5px; border-radius: 999px; background: #D9CFBF; align-self: center"></div>
-<div style="padding: 0 20px; display: flex; justify-content: space-between; align-items: baseline">
+<div class="rm-sheet" style="position: absolute; left: 0; right: 0; bottom: 0; height: 340px; background: #FBF8F2; border-radius: 26px 26px 0 0; box-shadow: 0 -4px 20px rgba(20,18,16,0.14); display: flex; flex-direction: column; gap: 12px; padding: 10px 0 24px; box-sizing: border-box">
+<div class="rm-grab rm-handle" style="width: 40px; height: 5px; border-radius: 999px; background: #D9CFBF; align-self: center"></div>
+<div class="rm-grab" style="padding: 0 20px; display: flex; justify-content: space-between; align-items: baseline">
 <span style="font-size: 15px; font-weight: 700">{{stepsTitle}}</span>
 <span style="font-size: 12px; color: #5C564E">{{t.swipe}}</span>
 </div>
@@ -528,7 +544,7 @@ class Component extends DCLogic {
     var zu = Math.pow(2, M.getZoom()) / 11451.8, spread = zu < 3.5;
     if (spread !== K.spread) {
       K.spread = spread;
-      K.pins.forEach(function (p) { if (p.o) p.m.setOffset(spread ? p.o : [0, 0]); });
+      /* étapes toujours fixées sur leur point */
     }
     if (K.me && K.me.acc != null) {
       var r = Math.min(140, Math.max(0, K.me.acc / 4.494 * zu)) * 2;
@@ -552,12 +568,12 @@ class Component extends DCLogic {
       if (P.key === key) return;
       P.key = key; P.o = p.o;
       P.el.firstChild.textContent = p.n;
-      P.el.className = 'rm-pin' + (p.on ? ' on' : '');
-      P.m.setLngLat(self.mapLL(p.x, p.y)).setOffset(K.spread && p.o ? p.o : [0, 0]);
+      P.el.classList.toggle('on', !!p.on);
+      P.m.setLngLat(self.mapLL(p.x, p.y)).setOffset([0, 0]);
     });
     // hôtel
     if (!K.hotel) { K.hotel = this.mapMarker('<svg width="12" height="12" viewBox="-6 -6 12 12"><path d="M-4 4V-4M4 4V-4M-4 0H4" stroke="#C9A66B" stroke-width="1.6" stroke-linecap="round" fill="none"></path></svg>', 'rm-hotel'); K.hotel.m.setLngLat(this.mapLL(sp.hotel.x, sp.hotel.y)).addTo(M); }
-    K.hotel.el.className = 'rm-hotel' + (sp.hotel.on ? ' on' : '');
+    K.hotel.el.classList.toggle('on', !!sp.hotel.on);
     // position GPS (point bleu)
     if (sp.me) {
       if (!K.me) { K.me = this.mapMarker('<i class="acc"></i><i class="halo"></i><i class="dot"></i>', 'rm-me'); K.me.ring = K.me.el.firstChild; K.me.m.setLngLat(this.mapLL(sp.me.x, sp.me.y)).addTo(M); }
@@ -741,7 +757,7 @@ class Component extends DCLogic {
         startWalk: 'Démarrer la balade', backMap: 'Retour à la carte',
         navNext: 'Prochaine étape', navGps: 'Position en direct', navFar: 'Loin du parcours · avance à la main', navManual: 'Sans localisation · avance à la main', navWait: 'Recherche de ta position…', navSim: 'Démo simulée', navSimFar: 'Hors parcours · démo', navPause: 'Pause', navPlay: 'Reprendre', navSkip: 'Étape suivante', navEnd: 'Terminer', navSoon: 'Tu approches', navHere: 'Vous y êtes', navGoOn: 'On repart', navReadNow: "Écouter l'histoire", navStop: 'étape', navRead: "Lire l'histoire", navLater: 'Plus tard', navDoneTitle: "Retour à l'hôtel", navDoneText: 'Balade terminée. Merci de nous avoir suivis !', navRemaining: 'restants', navRecenter: 'Recentrer sur ma position',
         next: 'Histoire suivante', foStart: 'DÉPART', replay: 'Rejouer', foCard: "LES SECRETS DE L'ÉTOILE · 5,3 KM", photoMock: "Vidéo de maquette (IA) · à faire valider par l'hôtel", fo1: 'Balzac', fo2: 'La Païva', fo3: 'La Flamme', fo4: "L'Arc", byTheme: 'Par thème', otherRoutes: 'Autres itinéraires', inKm: 'En km', inTime: 'En temps', allDist: 'Toutes', catOne: 'parcours', catMany: 'parcours', catEmpty: 'Aucun parcours pour ce filtre.', mustTag: 'Incontournable', withAudio: 'texte + audio',
-        exKicker: "Un avant-goût", exTitle: "L'hôtel d'où tu pars", exText: "Ce palace ouvre en 1928, en pleines Années folles, quand Paris fait la fête après la guerre. Joséphine Baker et Maurice Chevalier, les stars du music-hall, y chantent. Et en 1946, un client inattendu y reste des semaines : Hô Chi Minh, le futur président du Vietnam, venu négocier l'avenir de son pays avec la France.", exListen: "Écouter l'extrait",
+        exLine: "Ouvert en 1928. Joséphine Baker y a chanté, Hô Chi Minh y a séjourné.", exKicker: "Un avant-goût", exTitle: "L'hôtel d'où tu pars", exText: "Ce palace ouvre en 1928, en pleines Années folles, quand Paris fait la fête après la guerre. Joséphine Baker et Maurice Chevalier, les stars du music-hall, y chantent. Et en 1946, un client inattendu y reste des semaines : Hô Chi Minh, le futur président du Vietnam, venu négocier l'avenir de son pays avec la France.", exListen: "Écouter l'extrait",
         startHint: "Te guide étape par étape et te propose chaque histoire en arrivant. « Me localiser » montre seulement où tu es sur la carte.",
         askKicker: 'Avant de partir', askTitle: 'Activer la localisation ?', askWhy: "Pendant la balade, ta position sert à te montrer sur la carte et à te prévenir quand tu approches d'une étape. C'est toi qui choisis ensuite d'écouter l'histoire, de la lire, ou plus tard.", askPrivacy: "Ta position reste sur ton téléphone. Elle n'est ni enregistrée ni envoyée, et le suivi s'arrête à la fin de la balade.", askYes: 'Activer et démarrer', askNo: 'Démarrer sans localisation', askCancel: 'Annuler',
         navReadIt: 'Lire', cardAudio: 'Texte + audio · ', cardText: 'Texte seul', listenDur: 'Écouter · ', mediaBoth: 'À lire ou à écouter · ', mediaLong: 'version longue ', mediaText: "À lire · audio indisponible sur cet appareil", readMore: 'Lire la suite · ', listen: 'Écouter', vPlay: 'Écouter', vStop: 'Arrêter la voix', vc_butler: 'Le Majordome', vc_titi: 'Le Titi', vc_diva: 'La Diva', vAutoOn: 'Voix auto : oui', vAutoOff: 'Voix auto : non', vWho: 'Qui te raconte ?',
@@ -764,7 +780,7 @@ class Component extends DCLogic {
         startWalk: 'Start the walk', backMap: 'Back to map',
         navNext: 'Next stop', navGps: 'Live location', navFar: 'Off route · advance by hand', navManual: 'No location · advance by hand', navWait: 'Finding your location…', navSim: 'Simulated demo', navSimFar: 'Off route · demo', navPause: 'Pause', navPlay: 'Resume', navSkip: 'Next stop', navEnd: 'End', navSoon: 'Coming up', navHere: 'You are here', navGoOn: 'Keep going', navReadNow: 'Listen to the story', navStop: 'stop', navRead: 'Read the story', navLater: 'Later', navDoneTitle: 'Back at the hotel', navDoneText: 'Walk complete. Thank you for walking with us!', navRemaining: 'left', navRecenter: 'Center on my position',
         next: 'Next story', foStart: 'START', replay: 'Replay', foCard: 'SECRETS OF THE ÉTOILE · 5.3 KM', photoMock: 'Mockup video (AI) · to be approved by the hotel', fo1: 'Balzac', fo2: 'La Païva', fo3: 'The Flame', fo4: 'The Arc', byTheme: 'By theme', otherRoutes: 'Other routes', inKm: 'By km', inTime: 'By time', allDist: 'All', catOne: 'route', catMany: 'routes', catEmpty: 'No route for this filter.', mustTag: 'Must-see', withAudio: 'text + audio',
-        exKicker: 'A taste', exTitle: "The hotel you're setting off from", exText: "This palace hotel opened in 1928, in the Roaring Twenties, when Paris was partying after the war. Joséphine Baker and Maurice Chevalier, the music-hall stars, sang here. And in 1946, an unexpected guest stayed for weeks: Ho Chi Minh, Vietnam's future president, in Paris to negotiate his country's future with France.", exListen: 'Listen to the excerpt',
+        exLine: "Opened in 1928. Joséphine Baker sang here, Hô Chi Minh stayed here.", exKicker: 'A taste', exTitle: "The hotel you're setting off from", exText: "This palace hotel opened in 1928, in the Roaring Twenties, when Paris was partying after the war. Joséphine Baker and Maurice Chevalier, the music-hall stars, sang here. And in 1946, an unexpected guest stayed for weeks: Ho Chi Minh, Vietnam's future president, in Paris to negotiate his country's future with France.", exListen: 'Listen to the excerpt',
         startHint: "Guides you stop by stop and offers each story as you arrive. “Show my location” only shows where you are on the map.",
         askKicker: 'Before you set off', askTitle: 'Turn on location?', askWhy: "During the walk, your location is used to show you on the map and to let you know when you're close to a stop. You then choose to listen to the story, read it, or save it for later.", askPrivacy: "Your location stays on your phone. It is never stored or sent, and tracking stops when the walk ends.", askYes: 'Turn on and start', askNo: 'Start without location', askCancel: 'Cancel',
         navReadIt: 'Read', cardAudio: 'Text + audio · ', cardText: 'Text only', listenDur: 'Listen · ', mediaBoth: 'Read or listen · ', mediaLong: 'long version ', mediaText: 'Read only · audio not available on this device', readMore: 'Read on · ', listen: 'Listen', vPlay: 'Listen', vStop: 'Stop voice', vc_butler: 'The Butler', vc_titi: 'The Paris Kid', vc_diva: 'The Diva', vAutoOn: 'Auto voice: on', vAutoOff: 'Auto voice: off', vWho: 'Who tells it?',
