@@ -658,8 +658,8 @@ class Component extends DCLogic {
       if (!navigator.geolocation) { manual(); return; }
       this._watch = navigator.geolocation.watchPosition(
         function (p) { if (self.state.nav) self.onGps(p.coords.latitude, p.coords.longitude); },
-        function (err) { if (err && err.code === 1) { manual(); self.setState({ locNote: 'blocked' }); clearTimeout(self._lnt); self._lnt = setTimeout(function () { self.setState({ locNote: '' }); }, 7000); } else if (self.state.navSrc === 'wait') manual(); },
-        { enableHighAccuracy: true, maximumAge: 2000, timeout: 20000 });
+        function (err) { if (err && err.code === 1) { manual(); self.setState({ locNote: 'blocked' }); clearTimeout(self._lnt); self._lnt = setTimeout(function () { self.setState({ locNote: '' }); }, 7000); } else if (self.state.navSrc === 'wait') self.setState({ navSrc: 'manual', navPos: null }); },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
     } catch (e) { manual(); }
   }
   speakText(text) {
