@@ -47,6 +47,7 @@ document.addEventListener('pointerup',end,true);document.addEventListener('point
 </script>
 <script src="../support.js"></script>
 <script src="./stories.js"></script>
+<script src="./i18n.js"></script>
 <link rel="stylesheet" href="../maplibre-gl.css">
 <script src="../maplibre-gl.js"></script>
 </head>
@@ -167,10 +168,13 @@ button{font-family:inherit;cursor:pointer}
 <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 200px; background: linear-gradient(180deg, rgba(20,18,16,0) 0%, rgba(20,18,16,0.6) 100%)"></div>
 
 <div style="position: absolute; left: 24px; right: 24px; top: 56px; display: flex; justify-content: space-between; align-items: center">
-<span style="font-family: 'Bodoni Moda', serif; font-size: 17px; letter-spacing: 3px; text-transform: uppercase; color: #F4EFE6; text-shadow: 0 1px 6px rgba(0,0,0,0.4)">Mayflower Opéra</span>
+<span style="font-family: 'Bodoni Moda', serif; font-size: 15px; letter-spacing: 2px; white-space: nowrap; text-transform: uppercase; color: #F4EFE6; text-shadow: 0 1px 6px rgba(0,0,0,0.4)">Mayflower Opéra</span>
 <div style="display: flex; gap: 2px; background: rgba(20,18,16,0.55); border-radius: 999px; padding: 3px">
-<button type="button" onClick="{{setFr}}" aria-label="Français" style="border: none; border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700; background: {{fr.bg}}; color: {{fr.fgDark}}">FR</button>
-<button type="button" onClick="{{setEn}}" aria-label="English" style="border: none; border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700; background: {{en.bg}}; color: {{en.fgDark}}">EN</button>
+<button type="button" onClick="{{setFr}}" aria-label="Français" style="border: none; border-radius: 999px; padding: 7px 7px; font-size: 12px; white-space: nowrap; font-weight: 700; background: {{fr.bg}}; color: {{fr.fgDark}}">FR</button>
+<button type="button" onClick="{{setEn}}" aria-label="English" style="border: none; border-radius: 999px; padding: 7px 7px; font-size: 12px; white-space: nowrap; font-weight: 700; background: {{en.bg}}; color: {{en.fgDark}}">EN</button>
+<button type="button" onClick="{{setZh}}" aria-label="中文" style="border: none; border-radius: 999px; padding: 7px 7px; font-size: 12px; white-space: nowrap; font-weight: 700; background: {{zh.bg}}; color: {{zh.fgDark}}">中文</button>
+<button type="button" onClick="{{setAr}}" aria-label="العربية" style="border: none; border-radius: 999px; padding: 7px 7px; font-size: 12px; white-space: nowrap; font-weight: 700; background: {{ar.bg}}; color: {{ar.fgDark}}">عربي</button>
+<button type="button" onClick="{{setRu}}" aria-label="Русский" style="border: none; border-radius: 999px; padding: 7px 7px; font-size: 12px; white-space: nowrap; font-weight: 700; background: {{ru.bg}}; color: {{ru.fgDark}}">RU</button>
 </div>
 </div>
 
@@ -451,8 +455,11 @@ button{font-family:inherit;cursor:pointer}
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EFE6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
 </button>
 <div style="display: flex; gap: 4px; border: 1px solid #5E7A69; border-radius: 999px; padding: 3px">
-<button type="button" onClick="{{setFr}}" aria-label="Français" style="border: none; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; background: {{fr.bgLight}}; color: {{fr.fgLight}}">FR</button>
-<button type="button" onClick="{{setEn}}" aria-label="English" style="border: none; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; background: {{en.bgLight}}; color: {{en.fgLight}}">EN</button>
+<button type="button" onClick="{{setFr}}" aria-label="Français" style="border: none; border-radius: 999px; padding: 6px 7px; font-size: 12px; white-space: nowrap; font-weight: 600; background: {{fr.bgLight}}; color: {{fr.fgLight}}">FR</button>
+<button type="button" onClick="{{setEn}}" aria-label="English" style="border: none; border-radius: 999px; padding: 6px 7px; font-size: 12px; white-space: nowrap; font-weight: 600; background: {{en.bgLight}}; color: {{en.fgLight}}">EN</button>
+<button type="button" onClick="{{setZh}}" aria-label="中文" style="border: none; border-radius: 999px; padding: 6px 7px; font-size: 12px; white-space: nowrap; font-weight: 600; background: {{zh.bgLight}}; color: {{zh.fgLight}}">中文</button>
+<button type="button" onClick="{{setAr}}" aria-label="العربية" style="border: none; border-radius: 999px; padding: 6px 7px; font-size: 12px; white-space: nowrap; font-weight: 600; background: {{ar.bgLight}}; color: {{ar.fgLight}}">عربي</button>
+<button type="button" onClick="{{setRu}}" aria-label="Русский" style="border: none; border-radius: 999px; padding: 6px 7px; font-size: 12px; white-space: nowrap; font-weight: 600; background: {{ru.bgLight}}; color: {{ru.fgLight}}">RU</button>
 </div>
 </div>
 <span style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #E3CC9F; font-weight: 600">{{story.n}} / {{total}} · {{story.kind}}</span>
@@ -670,18 +677,18 @@ class Component extends DCLogic {
     } catch (e) { manual(); }
   }
   speakText(text) {
-    var self = this, st = this.state, fr = st.lang !== 'en';
+    var self = this, st = this.state, fr = st.lang !== 'en', LGC = { fr: ['fr', 'fr-FR'], en: ['en', 'en-GB'], zh: ['zh', 'zh-CN'], ar: ['ar', 'ar-SA'], ru: ['ru', 'ru-RU'] }[st.lang || 'fr'] || ['fr', 'fr-FR'];
     var VC = { butler: { rate: 0.92, pitch: 0.7, g: 'm' }, titi: { rate: 1.1, pitch: 1.15, g: 'm' }, diva: { rate: 0.9, pitch: 1.35, g: 'f' } }[st.voice || 'butler'];
     try {
       var ss = window.speechSynthesis; if (!ss) return;
       ss.cancel();
-      var lang = fr ? 'fr' : 'en', all = ss.getVoices().filter(function (v) { return (v.lang || '').toLowerCase().indexOf(lang) === 0; });
+      var lang = LGC[0], all = ss.getVoices().filter(function (v) { return (v.lang || '').toLowerCase().indexOf(lang) === 0; });
       var F = /am[eé]lie|audrey|marie|virginie|julie|aur[eé]lie|c[eé]line|hortense|denise|samantha|karen|female|femme|zira|ava|allison|susan|serena|kate|moira|tessa|fiona|victoria|google fran/i;
       var M = /thomas|daniel|nicolas|paul|henri|claude|male|homme|alex|fred|arthur|david|guy|jacques|remy|rémy|oliver|george|rishi|gordon|aaron/i;
       var want = VC.g === 'f' ? F : M;
       var pickV = all.filter(function (v) { return want.test(v.name) && !(VC.g === 'f' ? M : F).test(v.name); })[0] || all[0] || null;
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = fr ? 'fr-FR' : 'en-GB'; if (pickV) u.voice = pickV; u.rate = VC.rate; u.pitch = VC.pitch;
+      u.lang = LGC[1]; if (pickV) u.voice = pickV; u.rate = VC.rate; u.pitch = VC.pitch;
       u.onend = function () { if (self._utt === u) self.setState({ speaking: false }); };
       u.onerror = u.onend;
       this._utt = u;
@@ -693,9 +700,10 @@ class Component extends DCLogic {
   storyText(i, long) {
     var st = this.state, fr = st.lang !== 'en', x = STOPS_REF[0] ? STOPS_REF[0][i] : null;
     if (!x) return '';
-    var v = fr ? x.fr : x.en;
+    var v = x[st.lang] || x.en, IX = st.lang === 'fr' ? 0 : 1, IL = (st.lang !== 'fr' && st.lang !== 'en' && window.MF_I18N && MF_I18N[st.lang] && MF_I18N[st.lang].intro) ? MF_I18N[st.lang].intro[st.voice || 'butler'] : null;
     var I = { butler: ["Nous y voilà. Installe-toi, je te raconte.", "Here we are. Make yourself comfortable, let me tell you."], titi: ["Allez, stop ! Écoute-moi ça, c'est du lourd.", "Right, stop! Listen to this one, it's a good one."], diva: ["Ah, mon chéri… écoute bien cette histoire.", "Ah, darling… listen closely to this one."] }[st.voice || 'butler'];
-    return v.short ? [fr ? I[0] : I[1], v.title + '.', long ? v.long : v.short, long ? '' : (v.look || '')].join(' ') : [fr ? I[0] : I[1], v.title + '.', v.hook, v.look || '', v.body].join(' ');
+    var I0 = IL || I[IX];
+    return v.short ? [I0, v.title + '.', long ? v.long : v.short, long ? '' : (v.look || '')].join(' ') : [I0, v.title + '.', v.hook, v.look || '', v.body].join(' ');
   }
   stopNav() { this.stopTimers(); this.stopSpeak(); this.setState({ nav: false, popup: null, arrive: null, navDone: false, z: null, cx: null, cy: null }); }
   advanceTo(v) {
@@ -760,10 +768,11 @@ class Component extends DCLogic {
   renderVals() {
     var s = this.state;
     var self = this;
-    var fr = s.lang === 'fr';
+    var fr = s.lang === 'fr', LG = s.lang || 'fr', I18 = (!fr && LG !== 'en' && window.MF_I18N) ? window.MF_I18N[LG] : null, DC = (fr || LG === 'ru') ? ',' : '.';
+    try { document.documentElement.lang = LG; document.documentElement.dir = LG === 'ar' ? 'rtl' : 'ltr'; } catch (e) {}
     var hasAudio = typeof window !== 'undefined' && !!window.speechSynthesis;
     function durOf(txt) {
-      var w = String(txt || '').split(/\s+/).filter(Boolean).length;
+      var w = LG === 'zh' ? String(txt || '').replace(/\s/g, '').length * 0.58 : String(txt || '').split(/\s+/).filter(Boolean).length;
       var rate = { butler: 0.92, titi: 1.1, diva: 0.9 }[s.voice || 'butler'] || 1;
       var sec = Math.max(5, Math.round(w / (2.6 * rate) / 5) * 5);
       return sec < 60 ? sec + ' s' : Math.floor(sec / 60) + ' min' + (sec % 60 ? ' ' + (sec % 60 < 10 ? '0' : '') + (sec % 60) : '');
@@ -816,7 +825,7 @@ class Component extends DCLogic {
         demoNote: 'Demo text. Every story will be verified and sourced in step 2.'
       }
     };
-    var t = fr ? T.fr : T.en;
+    var t = fr ? T.fr : (I18 ? Object.assign({}, T.en, I18.ui) : T.en);
     if (s.mode === 'bike') t = Object.assign({}, t, fr
       ? { chooseLoop: 'Choisissez votre balade à vélo', startWalk: 'Démarrer la balade à vélo', mapAltPre: "Boucle à vélo depuis l'hôtel : ", navDoneText: "Balade terminée. Merci d'avoir roulé avec nous !" }
       : { chooseLoop: 'Choose your ride', startWalk: 'Start the ride', mapAltPre: 'Bike loop from the hotel: ', navDoneText: 'Ride complete. Thank you for riding with us!' });
@@ -826,6 +835,7 @@ class Component extends DCLogic {
     if (s.mode === 'scoot') t = Object.assign({}, t, fr
       ? { chooseLoop: 'Choisissez votre balade en scooter', startWalk: 'Démarrer la balade en scooter', mapAltPre: "Boucle en scooter depuis l'hôtel : ", navDoneText: "Balade terminée. Merci d'avoir roulé avec nous !" }
       : { chooseLoop: 'Choose your scooter ride', startWalk: 'Start the ride', mapAltPre: 'Scooter loop from the hotel: ', navDoneText: 'Ride complete. Thank you for riding with us!' });
+    if (I18 && I18.modes && I18.modes[s.mode]) t = Object.assign({}, t, I18.modes[s.mode]);
     var MODES = {
       walk: { label: t.walk, kmh: 4, km: [1, 1.3, 2, 3, 4, 5, 8, 10] },
       run: { label: t.run, kmh: 10, km: [5, 8, 10, 12, 15, 18, 20, 22, 25] },
@@ -835,9 +845,9 @@ class Component extends DCLogic {
     var m = MODES[s.mode];
     function fmt(min) {
       var r = Math.round(min / 5) * 5;
-      if (r < 60) return r + ' min';
+      if (r < 60) return r + ' ' + (t.uMin || 'min');
       var h = Math.floor(r / 60), mm = r % 60;
-      return h + ' h' + (mm ? ' ' + (mm < 10 ? '0' + mm : mm) : '');
+      return h + ' ' + (t.uH || 'h') + (mm ? ' ' + (mm < 10 ? '0' + mm : mm) : '');
     }
     function sel(on) {
       return on ? { border: '#141210', bg: '#141210', fg: '#F4EFE6' } : { border: '#E2D9CA', bg: '#FBF8F2', fg: '#141210' };
@@ -1022,6 +1032,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       function ap(s){ if(!s||!s.fr) return; var v=M[n(s.fr.title)]; if(!v) return; s.fr.short=v.fr.short; s.fr.long=v.fr.long; if(s.en){s.en.short=v.en.short; s.en.long=v.en.long;} }
       STOPS.forEach(ap); LOOPS.forEach(function(l){ (l.stops||[]).forEach(ap); (l.extra||[]).forEach(ap); }); })();
     if (window.MF_APPLY) window.MF_APPLY([STOPS, LOOPS, WALKS, RUNS, BIKES, SCOOTS]);
+    if (window.MF_I18N_APPLY) window.MF_I18N_APPLY([STOPS, LOOPS, WALKS, RUNS, BIKES, SCOOTS]);
     var POOL = s.mode === 'walk' ? LOOPS : s.mode === 'bike' ? BIKES : s.mode === 'run' ? RUNS : s.mode === 'scoot' ? SCOOTS : null;
     var opts = POOL || [LOOPS[0]];
     var L = opts.filter(function (l) { return l.id === s.loopId; })[0] || opts[0];
@@ -1036,9 +1047,9 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
     var theme = s.theme || 'all';
     function metaOf(l) { return META[l.id] || ['art']; }
     function card(l) {
-      var v = fr ? l.fr : l.en, k = String(l.km).replace('.', fr ? ',' : '.') + ' km';
+      var v = (l[LG] || l.en), k = String(l.km).replace('.', DC) + ' km';
       return { title: v.title, tagline: v.tagline, tag: TH[metaOf(l)[0]], km: k,
-        meta: (metaOf(l)[1] ? k + ' · ' : '') + fmt(l.min || l.km / m.kmh * 60) + ' · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : 'story')),
+        meta: (metaOf(l)[1] ? k + ' · ' : '') + fmt(l.min || l.km / m.kmh * 60) + ' · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : (t.story1 || 'story'))),
         open: function () { self.setState(Object.assign({ loopId: l.id, screen: 'loop' }, RESET)); } };
     }
     var mustL = opts.filter(function (l) { return metaOf(l)[1]; }).sort(function (a, b) { return metaOf(a)[1] - metaOf(b)[1]; });
@@ -1053,7 +1064,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
     var others = restL.filter(function (l) { return l.preset === runKm; }).sort(function (a, b) { return a.km - b.km; }).map(card);
     var byTimeView = s.catBy === 'time';
     var distBoxes = boxKm.map(function (k) {
-      var on = k === runKm, kmL = String(k).replace('.', fr ? ',' : '.') + ' km', tL = fmt(k / m.kmh * 60);
+      var on = k === runKm, kmL = String(k).replace('.', DC) + ' km', tL = fmt(k / m.kmh * 60);
       return { main: byTimeView ? tL : kmL, sub: byTimeView ? kmL : tL, on: on ? 'true' : 'false', border: on ? '#141210' : '#E2D9CA', bg: on ? '#141210' : '#FBF8F2', fg: on ? '#F4EFE6' : '#141210',
         pick: function () { self.setState({ runKm: k }); } };
     });
@@ -1075,7 +1086,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       var c = card(l), must = !!metaOf(l)[1];
       return { title: c.title, tagline: c.tagline, km: c.km, open: c.open,
         tag: (must ? t.mustTag + ' · ' : '') + c.tag,
-        meta: fmt(l.min || l.km / m.kmh * 60) + ' · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : 'story')) + (hasAudio ? ' · ' + t.withAudio : ''),
+        meta: fmt(l.min || l.km / m.kmh * 60) + ' · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : (t.story1 || 'story'))) + (hasAudio ? ' · ' + t.withAudio : ''),
         bg: must ? '#141210' : '#FBF8F2', fg: must ? '#F4EFE6' : '#141210', bd: must ? '#141210' : '#E2D9CA', tagC: must ? '#C9A66B' : '#7A5C2E', subC: must ? '#CFC6B8' : '#5C564E' };
     });
     var chipStyle = function (on) { return { on: on ? 'true' : 'false', border: on ? '#141210' : '#E2D9CA', bg: on ? '#141210' : '#FBF8F2', fg: on ? '#F4EFE6' : '#141210' }; };
@@ -1086,10 +1097,10 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
     STOPS = L.stops; STOPS_REF[0] = STOPS;
     var EX = L.pins, OFF = L.off || [];
     var HOTEL = [488.5, 16.7];
-    var LT = fr ? L.fr : L.en;
+    var LT = (L[LG] || L.en);
     var loopOpts = [].map(function (l, i) {
-      var on = l === L, v = fr ? l.fr : l.en;
-      return { title: v.title, tagline: v.tagline, meta: String(l.km).replace('.', fr ? ',' : '.') + ' km · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : 'story')),
+      var on = l === L, v = (l[LG] || l.en);
+      return { title: v.title, tagline: v.tagline, meta: String(l.km).replace('.', DC) + ' km · ' + l.stops.length + ' ' + (l.stops.length > 1 ? t.stories : (fr ? 'histoire' : (t.story1 || 'story'))),
         border: on ? '#141210' : '#E2D9CA', bg: on ? '#141210' : '#FBF8F2', fg: on ? '#F4EFE6' : '#141210', sub: on ? '#CFC6B8' : '#5C564E',
         pick: function () { self.setState(Object.assign({ loop: i }, RESET)); } };
     });
@@ -1097,7 +1108,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
     var FIT = false ? null : (function () { var zf = Math.min(280 / bw, 350 / bh, 3); return { cx: (bb[0] + bb[2]) / 2 + 27 / zf, cy: (bb[1] + bb[3]) / 2 + 27 / zf, z: zf }; })();
     var ZMIN = 0.09, PARIS = { cx: 894, cy: 582, z: 0.092 };
     var stops = STOPS.map(function (x, i) {
-      var v = fr ? x.fr : x.en;
+      var v = (x[LG] || x.en);
       return {
         n: i + 1, title: v.title, kind: v.kind, read: t.readStory, media: hasAudio ? t.cardAudio + durOf(self.storyText(i, false)) : t.cardText,
         border: s.sel === i ? '#141210' : '#E2D9CA',
@@ -1105,10 +1116,10 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
         focus: function () { self.setState({ sel: i, cx: EX[i][0], cy: EX[i][1], z: Math.max(s.z || FIT.z, 2.8), camN: (s.camN || 0) + 1 }); }
       };
     });
-    var sv = fr ? STOPS[s.story].fr : STOPS[s.story].en;
+    var sv = (STOPS[s.story][LG] || STOPS[s.story].en);
     function longView(i, key) {
       var x = STOPS[i]; if (!x) return {};
-      var v = fr ? x.fr : x.en, open = s.longOpen === key + i;
+      var v = (x[LG] || x.en), open = s.longOpen === key + i;
       var dShort = durOf(self.storyText(i, false)), dLong = v.short ? durOf(self.storyText(i, true)) : '';
       var base = {
         listenLabel: s.speaking ? t.vStop : t.listenDur + (open ? dLong : dShort),
@@ -1143,20 +1154,20 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       var nextI = s.popup != null ? s.popup : Math.min(nn, STOPS.length - 1);
       var distNext = Math.max(0, (g.stopS[nextI] - sNow) * 4.494);
       var remKm = Math.max(0, (g.total - sNow) * 4.494 / 1000);
-      var nv = fr ? STOPS[nextI].fr : STOPS[nextI].en;
-      var pv = s.popup != null ? (fr ? STOPS[s.popup].fr : STOPS[s.popup].en) : null;
+      var nv = (STOPS[nextI][LG] || STOPS[nextI].en);
+      var pv = s.popup != null ? ((STOPS[s.popup][LG] || STOPS[s.popup].en)) : null;
       nav = {
         me: 'translate(' + me[0].toFixed(1) + ' ' + me[1].toFixed(1) + ') scale(' + (1 / z).toFixed(3) + ')', walked: walked, walkedPts: walkedPts, meXY: me,
         nextN: nextI + 1, nextTitle: nv.title,
-        nextDist: distNext < 1000 ? (Math.round(distNext / 10) * 10) + ' m' : (distNext / 1000).toFixed(1).replace('.', fr ? ',' : '.') + ' km',
-        rem: remKm.toFixed(1).replace('.', fr ? ',' : '.') + ' km · ' + fmt(remKm / m.kmh * 60),
+        nextDist: distNext < 1000 ? (Math.round(distNext / 10) * 10) + ' m' : (distNext / 1000).toFixed(1).replace('.', DC) + ' km',
+        rem: remKm.toFixed(1).replace('.', DC) + ' km · ' + fmt(remKm / m.kmh * 60),
         src: { gps: t.navGps, far: t.navFar, manual: t.navManual, wait: t.navWait }[s.navSrc] || t.navWait,
         isSim: s.navSrc === 'manual' || s.navSrc === 'far', srcDot: s.navSrc === 'gps' ? '#2F7A4A' : s.navSrc === 'wait' ? '#C9A66B' : '#9A9186',
         hasPopup: s.popup != null && !s.navDone, popN: s.popup != null ? s.popup + 1 : 0,
         popListen: s.popup != null ? t.listenDur + durOf(self.storyText(s.popup, false)) : '', popTitle: pv ? pv.title : '', popHook: pv ? (pv.tease || pv.hook) : '', popLook: pv ? (pv.teaseLook || pv.look || '') : '', popKind: pv ? pv.kind : '',
         done: !!s.navDone,
         hasArrive: s.arrive != null && !s.navDone, arrN: s.arrive != null ? s.arrive + 1 : 0,
-        arr: s.arrive != null ? Object.assign({}, fr ? STOPS[s.arrive].fr : STOPS[s.arrive].en, { src: fr ? STOPS[s.arrive].srcFr : STOPS[s.arrive].srcEn }, longView(s.arrive, 'a')) : {}
+        arr: s.arrive != null ? Object.assign({}, (STOPS[s.arrive][LG] || STOPS[s.arrive].en), { src: fr ? STOPS[s.arrive].srcFr : STOPS[s.arrive].srcEn }, longView(s.arrive, 'a')) : {}
       };
     }
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -1235,7 +1246,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       toggleAuto: function () { self.setState({ voiceOn: s.voiceOn === false }); },
       recenter: function () { self.setState({ follow: true }); },
       hasLoops: !!POOL, loopOpts: loopOpts, must: must, others: others, themeChips: themeChips, isRunCat: isRunCat, notRunCat: !isRunCat, distBoxes: distBoxes, distCols: m.km.length % 3 === 0 ? 3 : m.km.length, moreLabel: isRunCat ? t.byDist : t.moreIdeas,
-      loopTitle: LT.title, stepsTitle: STOPS.length + ' ' + t.steps, mapAlt: t.mapAltPre + LT.title + ', ' + String(km).replace('.', fr ? ',' : '.') + ' km',
+      loopTitle: LT.title, stepsTitle: STOPS.length + ' ' + t.steps, mapAlt: t.mapAltPre + LT.title + ', ' + String(km).replace('.', DC) + ' km',
       zoomIn: function () { var M = self._map; if (M) M.easeTo({ zoom: M.getZoom() + 0.678, duration: 260 }); },
       zoomOut: function () { var M = self._map; if (M) M.easeTo({ zoom: M.getZoom() - 0.678, duration: 260 }); },
       me: s.gps ? { t: 'translate(' + s.gps.x.toFixed(1) + ' ' + s.gps.y.toFixed(1) + ') scale(' + (1 / z).toFixed(3) + ')', disp: 'inline', acc: Math.min(140, Math.max(0, (s.gps.acc || 0) / 4.494 * z)).toFixed(1) } : { t: 'translate(0 0)', disp: 'none', acc: 0 },
@@ -1319,12 +1330,13 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       skipIntro: function () { if (!s.foDone) self.setState({ foDone: true }); }, goDist: go('dist'), goLoop: go('loop'),
       setFr: function () { self.setState({ lang: 'fr' }); },
       setEn: function () { self.setState({ lang: 'en' }); },
-      fr: tog(fr), en: tog(!fr),
+      setZh: function () { self.setState({ lang: 'zh' }); }, setAr: function () { self.setState({ lang: 'ar' }); }, setRu: function () { self.setState({ lang: 'ru' }); },
+      fr: tog(LG === 'fr'), en: tog(LG === 'en'), zh: tog(LG === 'zh'), ar: tog(LG === 'ar'), ru: tog(LG === 'ru'),
       pickWalk: pick('walk'), pickRun: pick('run'), pickBike: pick('bike'), pickScoot: pick('scoot'),
       mWalk: sel(s.mode === 'walk'), mRun: sel(s.mode === 'run'), mBike: sel(s.mode === 'bike'), mScoot: sel(s.mode === 'scoot'),
       modeLabel: m.label,
       dists: dists,
-      loopMeta: m.label + ' · ' + String(km).replace('.', fr ? ',' : '.') + ' km · ' + fmt(L.min || km / m.kmh * 60) + ' · ' + STOPS.length + ' ' + t.stories,
+      loopMeta: m.label + ' · ' + String(km).replace('.', DC) + ' km · ' + fmt(L.min || km / m.kmh * 60) + ' · ' + STOPS.length + ' ' + t.stories,
       total: STOPS.length,
       stops: stops,
       openFirst: function () { self.startNav(true); },
@@ -1336,7 +1348,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       hasAudio: hasAudio,
       exLabel: s.speaking && s.exPlaying ? t.vStop : t.exListen + ' · ' + durOf(t.exText),
       exOpen: !!s.exOpen,
-      exReadLabel: s.exOpen ? (fr ? "Fermer l'histoire" : 'Close the story') : (fr ? "Lire l'histoire de ton hôtel" : "Read your hotel's story"),
+      exReadLabel: s.exOpen ? (fr ? "Fermer l'histoire" : (t.exClose || 'Close the story')) : (fr ? "Lire l'histoire de ton hôtel" : (t.exRead || "Read your hotel's story")),
       exToggle: function () { self.setState({ exOpen: !s.exOpen }); },
       exListen: function () { if (s.speaking) { self.stopSpeak(); self.setState({ exPlaying: false }); } else { self.speakText(t.exTitle + '. ' + t.exText); self.setState({ exPlaying: true }); } },
       catList: catList, chips: chips, catEmpty: catList.length === 0, catCount: catList.length + ' ' + (catList.length > 1 ? t.catMany : t.catOne),
