@@ -575,11 +575,11 @@ class Component extends DCLogic {
         M.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#8A5A1E', 'line-width': 5.5 } }, first);
         M.addLayer({ id: 'walked', type: 'line', source: 'walked', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#B9B0A2', 'line-width': 5.5 } }, first);
         try { // flèches de direction le long du tracé (Baptiste, 2026-11-26)
-          var cv = document.createElement('canvas'); cv.width = cv.height = 32; var g = cv.getContext('2d');
-          g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#FFFFFF'; g.lineWidth = 6;
-          g.beginPath(); g.moveTo(9, 6); g.lineTo(22, 16); g.lineTo(9, 26); g.stroke();
-          M.addImage('rm-arrow', g.getImageData(0, 0, 32, 32), { pixelRatio: 2 });
-          M.addLayer({ id: 'route-arrows', type: 'symbol', source: 'route', layout: { 'symbol-placement': 'line', 'symbol-spacing': 60, 'icon-image': 'rm-arrow', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'map' } });
+          var cv = document.createElement('canvas'); cv.width = cv.height = 44; var g = cv.getContext('2d');
+          g.fillStyle = '#FFFFFF'; g.strokeStyle = '#8A5A1E'; g.lineWidth = 3; g.beginPath(); g.arc(22, 22, 19, 0, Math.PI * 2); g.fill(); g.stroke();
+          g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = 5; g.beginPath(); g.moveTo(18, 12); g.lineTo(29, 22); g.lineTo(18, 32); g.stroke();
+          M.addImage('rm-arrow', g.getImageData(0, 0, 44, 44), { pixelRatio: 2 });
+          M.addLayer({ id: 'route-arrows', type: 'symbol', source: 'route', layout: { 'symbol-placement': 'line', 'symbol-spacing': 110, 'icon-image': 'rm-arrow', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'map' } });
         } catch (e) {}
         self._mapReady = true;
         self.syncMap();
