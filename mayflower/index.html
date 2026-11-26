@@ -534,6 +534,9 @@ class Component extends DCLogic {
     super(props);
     try { this._foReduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { this._foReduce = false; }
     this.state = { screen: 'home', mode: 'walk', dist: 0, loop: 0, lang: 'fr', story: 0, mapView: 'all' };
+    try { var q = new URLSearchParams(location.search).get('parcours');
+      if (q) { var md = /^course-/.test(q) ? 'run' : /^velo-/.test(q) ? 'bike' : /^scooter-/.test(q) ? 'scoot' : 'walk';
+        Object.assign(this.state, { screen: 'loop', mode: md, loopId: q }); } } catch (e) {}
   }
   componentWillUnmount() { this.stopTimers(); }
   // ---- Carte : MapLibre GL + tuiles vectorielles OpenFreeMap (données © OpenStreetMap) ----
@@ -1257,7 +1260,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       toggleAuto: function () { self.setState({ voiceOn: s.voiceOn === false }); },
       recenter: function () { self.setState({ follow: true }); },
       hasLoops: !!POOL, loopOpts: loopOpts, must: must, others: others, themeChips: themeChips, isRunCat: isRunCat, notRunCat: !isRunCat, distBoxes: distBoxes, distCols: m.km.length % 3 === 0 ? 3 : m.km.length, moreLabel: isRunCat ? t.byDist : t.moreIdeas,
-      loopTitle: LT.title, stepsTitle: STOPS.length + ' ' + t.steps, mapAlt: t.mapAltPre + LT.title + ', ' + String(km).replace('.', DC) + ' km',
+      loopTitle: LT.title, stepsTitle: STOPS.length + ' ' + (STOPS.length > 1 ? t.steps : (fr ? 'étape' : (t.step1 || 'stop'))), mapAlt: t.mapAltPre + LT.title + ', ' + String(km).replace('.', DC) + ' km',
       zoomIn: function () { var M = self._map; if (M) M.easeTo({ zoom: M.getZoom() + 0.678, duration: 260 }); },
       zoomOut: function () { var M = self._map; if (M) M.easeTo({ zoom: M.getZoom() - 0.678, duration: 260 }); },
       me: s.gps ? { t: 'translate(' + s.gps.x.toFixed(1) + ' ' + s.gps.y.toFixed(1) + ') scale(' + (1 / z).toFixed(3) + ')', disp: 'inline', acc: Math.min(140, Math.max(0, (s.gps.acc || 0) / 4.494 * z)).toFixed(1) } : { t: 'translate(0 0)', disp: 'none', acc: 0 },
@@ -1347,7 +1350,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       mWalk: sel(s.mode === 'walk'), mRun: sel(s.mode === 'run'), mBike: sel(s.mode === 'bike'), mScoot: sel(s.mode === 'scoot'),
       modeLabel: m.label,
       dists: dists,
-      loopMeta: m.label + ' · ' + String(km).replace('.', DC) + ' km · ' + fmt(L.min || km / m.kmh * 60) + ' · ' + STOPS.length + ' ' + t.stories,
+      loopMeta: m.label + ' · ' + String(km).replace('.', DC) + ' km · ' + fmt(L.min || km / m.kmh * 60) + ' · ' + STOPS.length + ' ' + (STOPS.length > 1 ? t.stories : (fr ? 'histoire' : (t.story1 || 'story'))),
       total: STOPS.length,
       stops: stops,
       openFirst: function () { self.startNav(true); },
