@@ -75,10 +75,12 @@ button{font-family:inherit;cursor:pointer}
 .rm-hotel{width:26px;height:26px;border-radius:50%;background:#141210;display:flex;align-items:center;justify-content:center}
 .rm-hotel.on{box-shadow:0 0 0 3px #C9A66B}
 .rm-me,.rm-nav{width:0;height:0}
+.rm-nav{z-index:3}
 .rm-me i,.rm-nav i{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);display:block}
 .rm-me .acc{background:rgba(47,123,246,.12)}.rm-me .halo{width:32px;height:32px;background:rgba(47,123,246,.18)}.rm-me .dot{width:13px;height:13px;background:#2F7BF6;border:2.5px solid #fff;box-sizing:content-box}
-.rm-nav .halo{width:44px;height:44px;background:rgba(201,166,107,.3)}.rm-nav .ring{width:22px;height:22px;background:#fff}.rm-nav .dot{width:15px;height:15px;background:#8A5A1E}
-.maplibregl-map{font-family:Manrope,sans-serif}
+.rm-nav .halo{width:44px;height:44px;background:rgba(201,166,107,.3)}
+.rm-nav .arr{position:absolute;left:0;top:0;width:34px;height:34px;display:block;transform:translate(-50%,-50%);will-change:transform;filter:drop-shadow(0 1px 2px rgba(20,18,16,.35))}
+.maplibregl-map{font-family:Manrope,sans-serif;isolation:isolate}
 @keyframes foTw{0%,100%{opacity:.2;transform:scale(.55)}50%{opacity:1;transform:scale(1.2)}}
 </style>
 </helmet>
@@ -547,6 +549,7 @@ class Component extends DCLogic {
   mapCam(x, y, z, dur) {
     var M = this._map; if (!M) return;
     var c = this.mapLL(x, y + 90 / z), o = { center: c, zoom: this.mapZ(z) };
+    this._camHold = (window.performance ? performance.now() : Date.now()) + (dur || 0) + 60;
     if (dur) M.easeTo(Object.assign(o, { duration: dur })); else M.jumpTo(o);
   }
   mapRefFn() {
@@ -569,7 +572,7 @@ class Component extends DCLogic {
       M.once('style.load', function () {
         var empty = { type: 'FeatureCollection', features: [] }, first = null;
         M.getStyle().layers.some(function (l) { if (l.type === 'symbol') { first = l.id; return true; } return false; });
-        M.addSource('route', { type: 'geojson', data: empty });
+        M.addSource('route', { type: 'geojson', data: empty, lineMetrics: true });
         M.addSource('walked', { type: 'geojson', data: empty });
         M.addLayer({ id: 'route-case', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFFFFF', 'line-width': 10 } }, first);
         M.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#8A5A1E', 'line-width': 5.5 } }, first);
@@ -634,20 +637,65 @@ class Component extends DCLogic {
       if (!K.me) { K.me = this.mapMarker('<i class="acc"></i><i class="halo"></i><i class="dot"></i>', 'rm-me'); K.me.ring = K.me.el.firstChild; K.me.m.setLngLat(this.mapLL(sp.me.x, sp.me.y)).addTo(M); }
       K.me.m.setLngLat(this.mapLL(sp.me.x, sp.me.y)); K.me.acc = sp.me.acc || 0;
     } else if (K.me) { K.me.m.remove(); K.me = null; }
-    // position pendant la balade
+    // position pendant la balade : flèche orientée, animée en continu entre deux positions GPS (Baptiste, 2026-11-27)
     if (sp.navMe) {
-      if (!K.nav) { K.nav = this.mapMarker('<i class="halo"></i><i class="ring"></i><i class="dot"></i>', 'rm-nav'); K.nav.m.setLngLat(this.mapLL(sp.navMe[0], sp.navMe[1])).addTo(M); }
-      K.nav.m.setLngLat(this.mapLL(sp.navMe[0], sp.navMe[1]));
-    } else if (K.nav) { K.nav.m.remove(); K.nav = null; }
+      var now = window.performance ? performance.now() : Date.now(), tg = sp.navMe, N = K.nav;
+      if (!N) {
+        N = K.nav = this.mapMarker('<i class="halo"></i><svg class="arr" viewBox="0 0 34 34"><path d="M17 4 L27.5 28 L17 22.5 L6.5 28 Z" fill="#8A5A1E" stroke="#FFFFFF" stroke-width="2.6" stroke-linejoin="round"></path></svg>', 'rm-nav');
+        N.arr = N.el.lastChild; N.cur = tg.slice(); N.from = tg.slice(); N.to = tg.slice(); N.t0 = now; N.dur = 0; N.tAt = now; N.iv = 1000;
+        N.head = N.hTo = sp.navHead != null ? sp.navHead : 0; N.pCur = N.pFrom = N.pTo = sp.navProg || 0; N.pSet = -1; N.tKey = tg[0].toFixed(2) + ',' + tg[1].toFixed(2);
+        N.m.setLngLat(this.mapLL(tg[0], tg[1])).addTo(M);
+        N.arr.style.transform = 'translate(-50%,-50%) rotate(' + N.head.toFixed(1) + 'deg)';
+      }
+      var tKey = tg[0].toFixed(2) + ',' + tg[1].toFixed(2);
+      if (tKey !== N.tKey) {
+        var dt = now - N.tAt, jump = Math.hypot(tg[0] - N.cur[0], tg[1] - N.cur[1]);
+        if (dt > 60 && dt < 6000) N.iv = N.iv * 0.6 + dt * 0.4;
+        N.from = N.cur.slice(); N.to = tg.slice(); N.pFrom = N.pCur; N.pTo = sp.navProg || 0; N.t0 = now; N.tAt = now; N.tKey = tKey;
+        N.dur = jump > 160 ? 0 : Math.max(250, Math.min(2200, N.iv * 1.1));
+        if (sp.navHead == null && jump > 1.2) N.hTo = Math.atan2(tg[0] - N.cur[0], -(tg[1] - N.cur[1])) * 180 / Math.PI;
+      }
+      if (sp.navHead != null) N.hTo = sp.navHead;
+      this.navAnim();
+    } else if (K.nav) { K.nav.m.remove(); K.nav = null; try { M.setPaintProperty('route', 'line-gradient', null); } catch (e) {} }
     this.mapZoomDeps();
     // caméra : uniquement quand l'app la demande (boutons, étape, démarrage) ou pour suivre la balade
     var c = sp.cam;
     if (c.key !== this._camKey) { this._camKey = c.key; this.mapCam(c.cx, c.cy, c.z, 450); }
-    else if (sp.follow && sp.navMe) {
-      var fk = sp.navMe[0].toFixed(1) + ',' + sp.navMe[1].toFixed(1);
-      if (fk !== this._mFollow) { this._mFollow = fk; var zz = Math.pow(2, M.getZoom()) / 11451.8; M.easeTo({ center: this.mapLL(sp.navMe[0], sp.navMe[1] + 90 / zz), duration: 400, easing: function (t) { return t; } }); }
+    else if (sp.follow && sp.navMe && K.nav && !this._mFollow) {
+      this._mFollow = '1'; var zz = Math.pow(2, M.getZoom()) / 11451.8;
+      this._camHold = (window.performance ? performance.now() : Date.now()) + 460;
+      M.easeTo({ center: this.mapLL(K.nav.cur[0], K.nav.cur[1] + 90 / zz), duration: 400 });
     }
     if (!sp.follow) this._mFollow = null;
+  }
+  navAnim() {
+    var self = this;
+    if (this._navRaf || typeof requestAnimationFrame === 'undefined') return;
+    var step = function (now) {
+      var K = self._mk, N = K && K.nav, M = self._map;
+      if (!N || !M) { self._navRaf = null; return; }
+      var f = N.dur > 0 ? Math.min(1, (now - N.t0) / N.dur) : 1;
+      N.cur = [N.from[0] + (N.to[0] - N.from[0]) * f, N.from[1] + (N.to[1] - N.from[1]) * f];
+      var dt = Math.min(100, now - (N.last || now)); N.last = now;
+      var dh = ((N.hTo - N.head) % 360 + 540) % 360 - 180;
+      N.head += dh * (1 - Math.exp(-dt / 260));
+      N.m.setLngLat(self.mapLL(N.cur[0], N.cur[1]));
+      N.pCur = N.pFrom + (N.pTo - N.pFrom) * f;
+      if (Math.abs(N.pCur - N.pSet) > 0.0002) { // partie déjà parcourue grisée, au rythme de la flèche
+        N.pSet = N.pCur;
+        try { M.setPaintProperty('route', 'line-gradient', ['step', ['line-progress'], '#B9B0A2', Math.max(0.00001, Math.min(0.99999, N.pCur)), '#8A5A1E']); } catch (e) {}
+      }
+      N.arr.style.transform = 'translate(-50%,-50%) rotate(' + N.head.toFixed(1) + 'deg)';
+      var sp = self._mapSpec;
+      if (sp && sp.follow && now > (self._camHold || 0) && !M.isZooming()) {
+        var zz = Math.pow(2, M.getZoom()) / 11451.8;
+        M.jumpTo({ center: self.mapLL(N.cur[0], N.cur[1] + 90 / zz) });
+      }
+      if (f < 1 || Math.abs(dh) > 0.3 || now < (self._camHold || 0) + 100) self._navRaf = requestAnimationFrame(step);
+      else { N.last = 0; self._navRaf = null; }
+    };
+    this._navRaf = requestAnimationFrame(step);
   }
   stopTimers() {
     if (this._timer) clearInterval(this._timer);
@@ -694,7 +742,7 @@ class Component extends DCLogic {
       this._watch = navigator.geolocation.watchPosition(
         function (p) { if (self.state.nav) self.onGps(p.coords.latitude, p.coords.longitude); },
         function (err) { if (err && err.code === 1) { manual(); self.setState({ locNote: 'blocked' }); clearTimeout(self._lnt); self._lnt = setTimeout(function () { self.setState({ locNote: '' }); }, 7000); } else if (self.state.navSrc === 'wait') self.setState({ navSrc: 'manual', navPos: null }); },
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 30000 });
     } catch (e) { manual(); }
   }
   speakText(text) {
@@ -1172,7 +1220,20 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       while (gi < g.pts.length - 2 && g.cum[gi + 1] <= sNow) gi++;
       var ga = g.pts[gi], gb = g.pts[gi + 1] || ga, segL = (g.cum[gi + 1] - g.cum[gi]) || 1, gf = Math.max(0, Math.min(1, (sNow - g.cum[gi]) / segL));
       var me = [ga[0] + (gb[0] - ga[0]) * gf, ga[1] + (gb[1] - ga[1]) * gf];
-      if (s.navPos && (s.navSrc === 'gps' || s.navSrc === 'far') && s.navPos[0] > -1300 && s.navPos[0] < 3100 && s.navPos[1] > -700 && s.navPos[1] < 1900) me = s.navPos;
+      var head = Math.atan2(gb[0] - ga[0], -(gb[1] - ga[1])) * 180 / Math.PI, prog = sNow;
+      if (s.navPos && (s.navSrc === 'gps' || s.navSrc === 'far') && s.navPos[0] > -1300 && s.navPos[0] < 3100 && s.navPos[1] > -700 && s.navPos[1] < 1900) {
+        // GPS : la flèche se cale sur le tracé quand on est dessus, sinon elle pointe vers le tracé
+        var P = s.navPos, sn = null, sd = 1e9, sh = head, ss = sNow;
+        for (var qi = 0; qi < g.pts.length - 1; qi++) {
+          if (g.cum[qi + 1] < sNow - 25 || g.cum[qi] > sNow + 225) continue;
+          var A = g.pts[qi], B = g.pts[qi + 1], ddx = B[0] - A[0], ddy = B[1] - A[1], l2 = ddx * ddx + ddy * ddy;
+          if (!l2) continue;
+          var tt = Math.max(0, Math.min(1, ((P[0] - A[0]) * ddx + (P[1] - A[1]) * ddy) / l2)), px = A[0] + ddx * tt, py = A[1] + ddy * tt, dd = Math.hypot(P[0] - px, P[1] - py);
+          if (dd < sd) { sd = dd; sn = [px, py]; sh = Math.atan2(ddx, -ddy) * 180 / Math.PI; ss = g.cum[qi] + tt * Math.sqrt(l2); }
+        }
+        if (sn && sd < 9 && s.navSrc === 'gps') { me = sn; head = sh; prog = ss; }
+        else { me = P; head = sn && sd > 2 ? Math.atan2(sn[0] - P[0], -(sn[1] - P[1])) * 180 / Math.PI : sh; }
+      }
       if (s.follow !== false) { cx = me[0]; cy = me[1]; }
       var walkedPts = g.pts.slice(0, gi + 1).concat([[ga[0] + (gb[0] - ga[0]) * gf, ga[1] + (gb[1] - ga[1]) * gf]]);
       var walked = 'M' + g.pts.slice(0, gi + 1).map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'L' + (ga[0] + (gb[0] - ga[0]) * gf).toFixed(1) + ' ' + (ga[1] + (gb[1] - ga[1]) * gf).toFixed(1);
@@ -1183,7 +1244,7 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       var nv = (STOPS[nextI][LG] || STOPS[nextI].en);
       var pv = s.popup != null ? ((STOPS[s.popup][LG] || STOPS[s.popup].en)) : null;
       nav = {
-        me: 'translate(' + me[0].toFixed(1) + ' ' + me[1].toFixed(1) + ') scale(' + (1 / z).toFixed(3) + ')', walked: walked, walkedPts: walkedPts, meXY: me,
+        me: 'translate(' + me[0].toFixed(1) + ' ' + me[1].toFixed(1) + ') scale(' + (1 / z).toFixed(3) + ')', walked: walked, walkedPts: walkedPts, meXY: me, head: head, prog: g.total ? prog / g.total : 0,
         nextN: nextI + 1, nextTitle: nv.title,
         nextDist: distNext < 1000 ? (Math.round(distNext / 10) * 10) + ' m' : (distNext / 1000).toFixed(1).replace('.', DC) + ' km',
         rem: remKm.toFixed(1).replace('.', DC) + ' km · ' + fmt(remKm / m.kmh * 60),
@@ -1244,10 +1305,10 @@ hook: "Before his famous cork-lined bedroom, Proust lived here, next to the park
       mPins.push({ n: mk, x: mp[0], y: mp[1], on: selIdx === mk - 1, o: mo && (mo[0] || mo[1]) ? [mo[0], mo[1]] : null });
     }
     self._mapSpec = {
-      loop: L.id, route: self.geom(L).pts, walked: nav ? nav.walkedPts : null, pins: mPins,
+      loop: L.id, route: self.geom(L).pts, walked: null, pins: mPins,
       hotel: { x: HOTEL[0], y: HOTEL[1], on: !!(L.hotelFirst && selIdx === 0) },
-      me: s.gps ? { x: s.gps.x, y: s.gps.y, acc: s.gps.acc || 0 } : null,
-      navMe: nav ? nav.meXY : null, follow: !!(s.nav && s.follow !== false),
+      me: s.gps && !nav ? { x: s.gps.x, y: s.gps.y, acc: s.gps.acc || 0 } : null,
+      navMe: nav ? nav.meXY : null, navHead: nav ? nav.head : null, navProg: nav ? nav.prog : null, follow: !!(s.nav && s.follow !== false),
       cam: { cx: cx, cy: cy, z: z, key: [L.id, s.cx, s.cy, s.z, s.camN || 0, s.nav ? 1 : 0].join('|') }
     };
     if (!self._syncQ) { self._syncQ = true; setTimeout(function () { self._syncQ = false; self.syncMap(); }, 0); }
