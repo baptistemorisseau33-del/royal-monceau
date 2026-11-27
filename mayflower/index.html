@@ -78,8 +78,9 @@ button{font-family:inherit;cursor:pointer}
 .rm-nav{z-index:3}
 .rm-me i,.rm-nav i{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);display:block}
 .rm-me .acc{background:rgba(47,123,246,.12)}.rm-me .halo{width:32px;height:32px;background:rgba(47,123,246,.18)}.rm-me .dot{width:13px;height:13px;background:#2F7BF6;border:2.5px solid #fff;box-sizing:content-box}
-.rm-nav .halo{width:44px;height:44px;background:rgba(201,166,107,.3)}
-.rm-nav .arr{position:absolute;left:0;top:0;width:34px;height:34px;display:block;transform:translate(-50%,-50%);will-change:transform;filter:drop-shadow(0 1px 2px rgba(20,18,16,.35))}
+.rm-nav .halo{width:46px;height:46px;background:radial-gradient(circle,rgba(201,166,107,.28) 0,rgba(201,166,107,.14) 55%,rgba(201,166,107,0) 72%)}
+.rm-nav .disc{width:28px;height:28px;background:#FBF8F2;box-shadow:0 0 0 1px rgba(201,166,107,.55),0 2px 6px rgba(20,18,16,.22)}
+.rm-nav .arr{position:absolute;left:0;top:0;width:19px;height:19px;display:block;transform:translate(-50%,-50%);will-change:transform}
 .maplibregl-map{font-family:Manrope,sans-serif;isolation:isolate}
 @keyframes foTw{0%,100%{opacity:.2;transform:scale(.55)}50%{opacity:1;transform:scale(1.2)}}
 </style>
@@ -577,13 +578,7 @@ class Component extends DCLogic {
         M.addLayer({ id: 'route-case', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFFFFF', 'line-width': 10 } }, first);
         M.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#8A5A1E', 'line-width': 5.5 } }, first);
         M.addLayer({ id: 'walked', type: 'line', source: 'walked', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#B9B0A2', 'line-width': 5.5 } }, first);
-        try { // flèches de direction le long du tracé (Baptiste, 2026-11-26)
-          var cv = document.createElement('canvas'); cv.width = cv.height = 44; var g = cv.getContext('2d');
-          g.fillStyle = '#FFFFFF'; g.strokeStyle = '#8A5A1E'; g.lineWidth = 3; g.beginPath(); g.arc(22, 22, 19, 0, Math.PI * 2); g.fill(); g.stroke();
-          g.fillStyle = '#8A5A1E'; g.beginPath(); g.moveTo(15, 12); g.lineTo(32, 22); g.lineTo(15, 32); g.closePath(); g.fill();
-          M.addImage('rm-arrow', g.getImageData(0, 0, 44, 44), { pixelRatio: 2 });
-          M.addLayer({ id: 'route-arrows', type: 'symbol', source: 'route', layout: { 'symbol-placement': 'line', 'symbol-spacing': 110, 'icon-image': 'rm-arrow', 'icon-rotate': 180, 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'map' } });
-        } catch (e) {}
+        // flèches le long du tracé retirées (Baptiste, 2026-11-27)
         self._mapReady = true;
         self.syncMap();
       });
@@ -632,6 +627,7 @@ class Component extends DCLogic {
     // hôtel
     if (!K.hotel) { K.hotel = this.mapMarker('<svg width="12" height="12" viewBox="-6 -6 12 12"><path d="M-4 4V-4M4 4V-4M-4 0H4" stroke="#C9A66B" stroke-width="1.6" stroke-linecap="round" fill="none"></path></svg>', 'rm-hotel'); K.hotel.m.setLngLat(this.mapLL(sp.hotel.x, sp.hotel.y)).addTo(M); }
     K.hotel.el.classList.toggle('on', !!sp.hotel.on);
+    K.hotel.el.style.display = sp.navMe ? 'none' : '';
     // position GPS (point bleu)
     if (sp.me) {
       if (!K.me) { K.me = this.mapMarker('<i class="acc"></i><i class="halo"></i><i class="dot"></i>', 'rm-me'); K.me.ring = K.me.el.firstChild; K.me.m.setLngLat(this.mapLL(sp.me.x, sp.me.y)).addTo(M); }
@@ -641,7 +637,7 @@ class Component extends DCLogic {
     if (sp.navMe) {
       var now = window.performance ? performance.now() : Date.now(), tg = sp.navMe, N = K.nav;
       if (!N) {
-        N = K.nav = this.mapMarker('<i class="halo"></i><svg class="arr" viewBox="0 0 34 34"><path d="M17 4 L27.5 28 L17 22.5 L6.5 28 Z" fill="#8A5A1E" stroke="#FFFFFF" stroke-width="2.6" stroke-linejoin="round"></path></svg>', 'rm-nav');
+        N = K.nav = this.mapMarker('<i class="halo"></i><i class="disc"></i><svg class="arr" viewBox="0 0 18 18"><path d="M9 1.4 L14.6 16 L9 12.6 L3.4 16 Z" fill="#8A5A1E" stroke="#8A5A1E" stroke-width="1" stroke-linejoin="round"></path></svg>', 'rm-nav');
         N.arr = N.el.lastChild; N.cur = tg.slice(); N.from = tg.slice(); N.to = tg.slice(); N.t0 = now; N.dur = 0; N.tAt = now; N.iv = 1000;
         N.head = N.hTo = sp.navHead != null ? sp.navHead : 0; N.pCur = N.pFrom = N.pTo = sp.navProg || 0; N.pSet = -1; N.tKey = tg[0].toFixed(2) + ',' + tg[1].toFixed(2);
         N.m.setLngLat(this.mapLL(tg[0], tg[1])).addTo(M);
